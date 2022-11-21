@@ -36,10 +36,34 @@ namespace MagicVilla_VillaAPI.Controllers
             return VillaStore.villas;
         }
 
-        [HttpGet("id")]
+        [HttpGet("{id:int}")]
         public VillaDTO GetVilla(int id)
         {
             return VillaStore.villas.FirstOrDefault(u => u.Id == id);
+        }
+
+        [HttpGet]
+        public ActionResult<IEnumerable<VillaDTO>> GetVillasStoreWithReturnStatusCode()
+        {
+            return Ok(VillaStore.villas);
+        }
+
+        [HttpGet("{id:int}")]
+        public ActionResult<VillaDTO> GetVillaWithReturnStatusCode(int id)
+        {
+
+            if (id == 0)
+            {
+                return BadRequest();
+            }
+
+            var villa = VillaStore.villas.FirstOrDefault(u => u.Id == id);
+
+            if (villa == null)
+            {
+                return NotFound();
+            }
+            return Ok(villa) ;
         }
     }
 }
