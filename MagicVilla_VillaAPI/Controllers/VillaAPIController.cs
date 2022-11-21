@@ -81,6 +81,14 @@ namespace MagicVilla_VillaAPI.Controllers
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         public ActionResult<VillaDTO> CreateVilla([FromBody] VillaDTO villa)
         {
+            // If [ApiController] attribute is not added to the class, the
+            // validations can be performed using the code below
+
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+
             if (villa == null)
             {
                 return BadRequest();
