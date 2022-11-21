@@ -83,9 +83,17 @@ namespace MagicVilla_VillaAPI.Controllers
         {
             // If [ApiController] attribute is not added to the class, the
             // validations can be performed using the code below
+            // Also, note that the below code when used with [ApiController] is hit
+            // ony when the model is valid
 
             if (!ModelState.IsValid)
             {
+                return BadRequest(ModelState);
+            }
+
+            if (VillaStore.villas.FirstOrDefault(u => u.Name.ToLower() == villa.Name.ToLower()) != null)
+            {
+                ModelState.AddModelError("CustomError", "Villa Already Exists!");
                 return BadRequest(ModelState);
             }
 
