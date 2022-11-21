@@ -49,6 +49,15 @@ namespace MagicVilla_VillaAPI.Controllers
         }
 
         [HttpGet("{id:int}")]
+        /*[ProducesResponseType(200)]
+        [ProducesResponseType(400)]
+        [ProducesResponseType(404)]*/
+        [ProducesResponseType(StatusCodes.Status403Forbidden)]
+        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        //[ProducesResponseType(200, Type =typeof(VillaDTO))]
         public ActionResult<VillaDTO> GetVillaWithReturnStatusCode(int id)
         {
 
