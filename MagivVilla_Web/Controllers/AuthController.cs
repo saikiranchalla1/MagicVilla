@@ -10,6 +10,7 @@ using System.Security.Claims;
 
 namespace MagivVilla_Web.Controllers
 {
+
     public class AuthController : Controller
     {
         private readonly IAuthService authService;
