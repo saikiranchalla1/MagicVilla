@@ -4,6 +4,7 @@ using MagicVilla_VillaAPI.Models;
 using MagicVilla_VillaAPI.Models.Dto;
 using MagicVilla_VillaAPI.Repository.IRepostiory;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using System.Data;
 using System.IdentityModel.Tokens.Jwt;
@@ -33,41 +34,45 @@ namespace MagicVilla_VillaAPI.Repository
 			return false;
 		}
 
-		public Task<LoginResponseDTO> Login(LoginRequestDTO loginRequestDTO)
-		{
-			var user = _db.LocalUsers.FirstOrDefault(u => u.UserName.ToLower() == loginRequestDTO.UserName.ToLower()
-			&& u.Password == loginRequestDTO.Password);
+        public async Task<LoginResponseDTO> Login(LoginRequestDTO loginRequestDTO)
+        {
+            var user = await _db.LocalUsers.FirstOrDefaultAsync(u => u.UserName == loginRequestDTO.UserName
+                        && u.Password == loginRequestDTO.Password);
 
-			if (user == null)
-			{
-				return null;
-			}
+            if (user == null)
+            {
+                return null;
+            }
 
-			var tokenHandler = new JwtSecurityTokenHandler();
-			var key = Encoding.ASCII.GetBytes(secretKey);
+            var tokenHandler = new JwtSecurityTokenHandler();
 
-			var tokenDescriptor = new SecurityTokenDescriptor
-			{
-				Subject = new ClaimsIdentity(new Claim[]
-				{
-					new Claim(ClaimTypes.Name, user.UserName.ToString()),
-					new Claim(ClaimTypes.Role, user.Role)
-				}),
-				Expires = DateTime.UtcNow.AddDays(7),
-				SigningCredentials = new(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256Signature)
-			};
+            var key = Encoding.ASCII.GetBytes(secretKey);
 
-			var token = tokenHandler.CreateToken(tokenDescriptor);
-			LoginResponseDTO loginResponseDTO = new LoginResponseDTO()
-			{
-				Token = tokenHandler.WriteToken(token),
-				User = _mapper.Map<UserDTO>(user),
+            var tokenDescriptor = new SecurityTokenDescriptor
+            {
+                Expires = DateTime.UtcNow.AddDays(7),
+                Subject = new ClaimsIdentity(new Claim[]
+                {
+                    new Claim(ClaimTypes.Name, user.UserName.ToString()),
+                    new Claim(ClaimTypes.Role, user.Role)
+                }),
+                SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256Signature)
+            };
 
-			};
-			return loginResponseDTO;
-		}
+            var token = tokenHandler.CreateToken(tokenDescriptor);
 
-		public async Task<LocalUser> Register(RegisterationRequestDTO registerationRequestDTO)
+            LoginResponseDTO loginResponseDTO = new LoginResponseDTO()
+            {
+                Token = tokenHandler.WriteToken(token),
+                User = user
+            };
+
+
+            return loginResponseDTO;
+
+        }
+
+        public async Task<LocalUser> Register(RegisterationRequestDTO registerationRequestDTO)
 		{
 			LocalUser localUser = new()
 			{
